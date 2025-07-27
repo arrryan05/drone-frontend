@@ -26,9 +26,8 @@ Built with **Next.js (App Router)** and **Firebase Authentication**, the UI is r
 | Auth            | Firebase Auth                |
 | State & Hooks   | React, Context API           |
 | Charts          | Chart.js (via react-chartjs-2) |
-| API             | REST calls to FastAPI backend |
-| Styles          | Tailwind CSS                 |
-| Deployment      | Vercel / Docker (optional)   |
+| API             | REST calls to NodeJS backend |
+
 
 ---
 
@@ -122,14 +121,6 @@ Access the app at [http://localhost:3000](https://www.google.com/search?q=http:/
   * We prioritized critical user workflows, including mission creation, monitoring, control, and analysis.
   * Focused on **real-time** telemetry and providing clear feedback on mission status.
   * Utilized a **simple, responsive UI** design to ensure scalability across various devices.
-
-### ⚖️ Trade-offs considered
-
-| Decision                      | Trade-off / Reason                                |
-| :---------------------------- | :------------------------------------------------ |
-| Firebase instead of custom auth | Faster authentication and enhanced security, avoiding boilerplate code. |
-| Chart.js for data visualization | Simple and flexible for immediate needs, though offers limited advanced customization. |
-| Next.js App Router            | Future-proof architecture with built-in routing and layout capabilities. |
 
 -----
 

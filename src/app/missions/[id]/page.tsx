@@ -12,7 +12,6 @@ import { Feature, LineString } from 'geojson';
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
 export default function MissionDetailPage() {
-  // Coerce id to string
   const params = useParams();
   const missionId = Array.isArray(params.id) ? params.id[0] : params.id;
 
@@ -22,7 +21,7 @@ export default function MissionDetailPage() {
   const mapRef = useRef<MapRef>(null);
   const socketRef = useRef<Socket | null>(null);
 
-  // Load mission DTO
+  // Load mission data
   useEffect(() => {
     (async () => {
       const token = await getAuth().currentUser?.getIdToken();
@@ -42,11 +41,7 @@ export default function MissionDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return;
-      const st = await res.json() as {
-        status: string;
-        progress: number;
-        position?: Waypoint;
-      };
+      const st = await res.json() as { status: string; progress: number; position?: Waypoint; };
       setStatus(st.status as any);
       if (st.position) {
         setTelemetry({
@@ -63,7 +58,7 @@ export default function MissionDetailPage() {
     })();
   }, [mission, missionId]);
 
-  // Subscribe after start
+  // Subscribe to live updates
   useEffect(() => {
     if (!mission || status === 'pending') return;
     const socket = io('http://localhost:4000');
@@ -81,7 +76,7 @@ export default function MissionDetailPage() {
     return () => { socket.disconnect(); };
   }, [mission, status, missionId]);
 
-  // Control actions
+  // Control commands
   const sendControl = async (cmd: 'start'|'pause'|'resume'|'abort') => {
     const token = await getAuth().currentUser?.getIdToken();
     const res = await fetch(`http://localhost:4000/missions/${missionId}/${cmd}`, {
@@ -93,15 +88,22 @@ export default function MissionDetailPage() {
     setStatus(body.status as any);
   };
 
-  if (!mission) return <p>Loading mission…</p>;
+  if (!mission) {
+    return (
+      <p style={{
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Loading mission…
+      </p>
+    );
+  }
 
-  // initial view
   const first = mission.waypoints[0] ?? { lat: 0, lng: 0 };
   const initialViewState = { longitude: first.lng, latitude: first.lat, zoom: 14 };
-
-  // typed Feature<LineString>
   const pathGeoJSON: Feature<LineString> = {
-    type: 'Feature' as const,
+    type: 'Feature',
     geometry: {
       type: 'LineString',
       coordinates: mission.waypoints.map(wp => [wp.lng, wp.lat]),
@@ -110,65 +112,171 @@ export default function MissionDetailPage() {
   };
 
   return (
-    <main style={{ padding:'1rem', fontFamily:'sans-serif' }}>
-      <h1>Mission {missionId}</h1>
-
-      <div style={{ height:400, marginBottom:'1rem' }}>
+    <main style={{
+      padding: '2rem',
+      fontFamily: 'Arial, sans-serif',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      display: 'grid',
+      gridTemplateColumns: '2fr 1fr',
+      gap: '1.5rem'
+    }}>
+      {/* Left Column: Map */}
+      <div style={{
+        position: 'relative',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }}>
         <Map
           initialViewState={initialViewState}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           mapboxAccessToken={MAPBOX_TOKEN}
           ref={mapRef}
+          style={{ width: '100%', height: '100%', minHeight: '500px' }}
         >
-          <Source
-            id="route"
-            type="geojson"
-            data={pathGeoJSON}
-          >
+          <Source id="route" type="geojson" data={pathGeoJSON}>
             <Layer id="route-layer" type="line" paint={{ 'line-width': 3 }} />
           </Source>
-
           {telemetry && (
             <Marker latitude={telemetry.position.lat} longitude={telemetry.position.lng}>
-              <div style={{ width:16, height:16, background:'red', borderRadius:'50%' }} />
+              <div style={{
+                width: '16px',
+                height: '16px',
+                background: 'red',
+                borderRadius: '50%',
+                border: '2px solid white'
+              }} />
             </Marker>
           )}
         </Map>
       </div>
 
-      <div style={{ background:'#eee', width:'100%', height:8, marginBottom:8 }}>
-        <div style={{
-          width:`${telemetry?.progress||0}%`,
-          height:'100%', transition:'width 0.5s',
-          background:'#007bff'
-        }} />
-      </div>
-      <p>Progress: {telemetry?.progress||0}%</p>
-
-      <p>
-        Status: <span style={{
-          padding:'0.25rem 0.5rem', borderRadius:4,
-          background:
-            status==='in_progress'?'lightgreen':
-            status==='paused'?'gold':
-            status==='completed'?'lightblue':
-            status==='aborted'?'salmon':'lightgray'
+      {/* Right Column: Details & Controls */}
+      <section style={{
+        background: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <h2 style={{
+          margin: 0,
+          marginBottom: '1rem',
+          fontSize: '1.5rem',
+          borderBottom: '1px solid #eee',
+          paddingBottom: '0.5rem'
         }}>
-          {status}
-        </span>
-      </p>
+          Mission {missionId}
+        </h2>
 
-      <div style={{ marginTop:'1rem' }}>
-        {status==='pending' ? (
-          <button onClick={()=>sendControl('start')}>Start Mission</button>
-        ) : (
-          <>
-            <button disabled={status!=='in_progress'} onClick={()=>sendControl('pause')}>Pause</button>{' '}
-            <button disabled={status!=='paused'} onClick={()=>sendControl('resume')}>Resume</button>{' '}
-            <button disabled={['completed','aborted'].includes(status)} onClick={()=>sendControl('abort')}>Abort</button>
-          </>
-        )}
-      </div>
+        {/* Progress Bar */}
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{
+            background: '#eee',
+            width: '100%',
+            height: '12px',
+            borderRadius: '6px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${telemetry?.progress || 0}%`,
+              height: '100%',
+              transition: 'width 0.5s',
+              background: '#004080'
+            }} />
+          </div>
+          <p style={{ margin: '0.5rem 0 1rem' }}>
+            Progress: {telemetry?.progress || 0}%
+          </p>
+        </div>
+
+        {/* Status Badge */}
+        <p style={{ marginBottom: '1.5rem' }}>
+          Status:{' '}
+          <span style={{
+            padding: '0.25rem 0.5rem',
+            borderRadius: '4px',
+            background:
+              status === 'in_progress' ? 'lightgreen' :
+              status === 'paused'      ? 'gold'       :
+              status === 'completed'   ? 'lightblue'  :
+              status === 'aborted'     ? 'salmon'     :
+                                        'lightgray'
+          }}>
+            {status.replace('_', ' ')}
+          </span>
+        </p>
+
+        {/* Control Buttons */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+          {status === 'pending' ? (
+            <button
+              onClick={() => sendControl('start')}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                backgroundColor: '#004080',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Start Mission
+            </button>
+          ) : (
+            <>
+              <button
+                disabled={status !== 'in_progress'}
+                onClick={() => sendControl('pause')}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#f0ad4e',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: status === 'in_progress' ? 'pointer' : 'not-allowed'
+                }}
+              >
+                Pause
+              </button>
+              <button
+                disabled={status !== 'paused'}
+                onClick={() => sendControl('resume')}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#5cb85c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: status === 'paused' ? 'pointer' : 'not-allowed'
+                }}
+              >
+                Resume
+              </button>
+              <button
+                disabled={['completed', 'aborted'].includes(status)}
+                onClick={() => sendControl('abort')}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#d9534f',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: ['completed', 'aborted'].includes(status) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Abort
+              </button>
+            </>
+          )}
+        </div>
+      </section>
     </main>
   );
 }

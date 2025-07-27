@@ -4,5 +4,9 @@ import { ReactNode } from 'react';
 export const metadata = { title: 'Missions' };
 
 export default function MissionsLayout({ children }: { children: ReactNode }) {
-  return <AuthGuard>{children}</AuthGuard>;
+  return(
+    <AuthGuard>{children}</AuthGuard>
+  )
 }
+
+   

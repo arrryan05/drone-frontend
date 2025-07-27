@@ -19,3 +19,20 @@ export interface Telemetry {
   progress: number;             // 0–100
   status: 'in_progress' | 'completed';
 }
+
+export interface Summary {
+  totalMissions: number;
+  completed: number;
+  aborted: number;
+  averageDurationSec: number;
+  averageAltitude: number;
+  durations: number[];
+  altitudes: number[];
+  durationsOverTime: DurationOverTime[];
+}
+
+interface DurationOverTime {
+  createdAt: string;
+  durationSec: number;
+}
+

@@ -8,13 +8,22 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.0",
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
     "firebase": "^12.0.0",
+    "mapbox-gl": "^3.13.0",
     "next": "14.0.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.61.1",
+    "react-map-gl": "^8.0.4",
+    "socket.io-client": "^4.8.1",
+    "zod": "^4.0.10"
   },
   "devDependencies": {
+    "@types/mapbox-gl": "^3.4.1",
     "@types/react": "^19.1.8",
+    "@types/react-map-gl": "^6.1.7",
     "typescript": "5.1.6"
   }
 }

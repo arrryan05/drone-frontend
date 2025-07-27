@@ -1,8 +1,21 @@
-// Shared data transfer objects (empty for now)
-export interface MissionDTO {
-  /* TODO: id, waypoints, params */
+export interface Waypoint {
+  lat: number;
+  lng: number;
 }
 
-export interface DroneDTO {
-  /* TODO: id, name, status, batteryPct */
+export interface MissionDTO {
+  id?: string;
+  waypoints: Waypoint[];
+  params: {
+    altitude: number;
+    overlap: number;
+    pattern: 'grid' | 'crosshatch' | 'perimeter';
+  };
+}
+
+export interface Telemetry {
+  missionId: string;
+  position: Waypoint;
+  progress: number;             // 0–100
+  status: 'in_progress' | 'completed';
 }

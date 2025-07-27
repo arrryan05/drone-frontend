@@ -152,7 +152,6 @@ export default function MissionDetailPage() {
         </Map>
       </div>
 
-      {/* Right Column: Details & Controls */}
       <section style={{
         background: 'white',
         borderRadius: '8px',

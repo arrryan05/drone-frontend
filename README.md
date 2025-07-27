@@ -38,29 +38,29 @@ Built with **Next.js (App Router)** and **Firebase Authentication**, the UI is r
 
 ### 🔐 Home Page
 
-![alt text](image-1.png)
+![alt text](public/image-1.png)
 ---
 ### 🔐 Auth
 
-![alt text](image-2.png)
+![alt text](public/image-2.png)
 ---
 ### 🔐 Missions
 
-![alt text](image-3.png)
+![alt text](public/image-3.png)
 
 ### 🗺️ Create Mission
 
-![alt text](image-4.png)
+![alt text](public/image-4.png)
 ---
 
 ### 📡 Live Mission Monitoring
 
-![alt text](image-5.png)
+![alt text](public/image-5.png)
 ---
 
 ### 📊 Reports Dashboard
 
-![alt text](image-6.png)
+![alt text](public/image-6.png)
 ---
 
 ## 🧪 Running Locally

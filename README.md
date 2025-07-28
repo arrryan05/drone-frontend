@@ -33,8 +33,6 @@ Built with **Next.js (App Router)** and **Firebase Authentication**, the UI is r
 
 ## 📸 UI Screenshots
 
-> _Replace the placeholder image links below with your actual screenshots._
-
 ### 🔐 Home Page
 
 ![alt text](public/image-1.png)
